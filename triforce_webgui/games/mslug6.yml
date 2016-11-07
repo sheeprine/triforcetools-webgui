@@ -1,0 +1,8 @@
+title: 'Metal Slug 6 (JPN)'
+shortname: 'mslug6'
+editor: 'SNK Playmore'
+year: 2006
+system: 'aw'
+roms:
+  - 'MetalSlug6.bin'
+  - 'mslug6.bin'
