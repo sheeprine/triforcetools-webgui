@@ -5,7 +5,7 @@ import os
 import yaml
 
 
-class TriforceWebGUI(object):
+class RomDataManager(object):
     systems_dir = 'systems'
     games_dir = 'games'
     roms_dir = 'roms'
@@ -47,20 +47,6 @@ class TriforceWebGUI(object):
                 self.game_assoc[system_name] = list()
             self.game_assoc[system_name].append(game)
 
-    def get_game(self, title=None, shortname=None):
-        if shortname:
-            try:
-                return self.games[shortname.lower()]
-            except KeyError:
-                pass
-        elif title:
-            for game in self.games.values():
-                # TODO(sheeprine): Compute Levenshtein  distance to ease search.
-                if title.lower() == game['title'].lower():
-                    return game
-        else:
-            raise ValueError('You should search for title or shortname.')
-
     def search(self, data, shortname=None, **kwargs):
         if shortname:
             try:
@@ -68,44 +54,24 @@ class TriforceWebGUI(object):
             except KeyError:
                 pass
         elif kwargs:
-            print('search')
             result = copy.copy(data.values())
             for search_name, search_value in kwargs.items():
                 for item in data.values():
                     # TODO(sheeprine): Compute Levenshtein  distance to ease
                     # search.
                     if item[search_name].lower() != search_value.lower():
-                        print("nope")
                         if item in result:
-                            print('dropping')
                             result.remove(item)
             return result
-        else:
-            raise ValueError('You should at least search for something.')
+        return []
 
-    def get_system(self, name=None, fullname=None, shortname=None):
-        if shortname:
-            try:
-                return self.systems[shortname.lower()]
-            except KeyError:
-                pass
-        elif name or fullname:
-            if fullname:
-                search = fullname
-                searching = 'fullname'
-            else:
-                search = name
-                searching = 'name'
-            for system in self.systems.values():
-                # TODO(sheeprine): Compute Levenshtein  distance to ease search.
-                if fullname:
-                    if search.lower() == system[searching].lower():
-                        return system
-        else:
-            raise ValueError('You should search for title or shortname.')
+    def get_system(self, shortname=None, **kwargs):
+        return self.search(self.systems, shortname, **kwargs)
 
+    def get_game(self, shortname=None, **kwargs):
+        return self.search(self.games, shortname, **kwargs)
 
-    def find_rom(self, game):
+    def find_rompath(self, game):
         system_name = game['system'].lower()
         basepath = os.path.join(self.roms_path, system_name)
         for f in game['roms']:
